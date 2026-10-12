@@ -1,0 +1,21 @@
+# Depot public : on ne publie que le code d'analyse, le site et la demo.
+# Donnees collectees, scripts de collecte et images Transfermarkt restent en local.
+/*
+!/.gitignore
+!/README.md
+!/docs/
+!/scripts/
+!/site/
+/scripts/*
+!/scripts/variables.py
+!/scripts/variables_fiche.py
+!/scripts/construire_dataset.py
+!/scripts/construire_page_autonome.py
+!/scripts/construire_artefact.py
+/site/*
+!/site/index.html
+!/site/style.css
+!/site/app.js
+!/site/fiche.js
+!/site/comparer.js
+!/site/explorer.js

@@ -1,0 +1,617 @@
+/* Radar Big 5 — feuille de style unique.
+   Le fond est sombre parce qu'on regarde surtout des cartes et des courbes :
+   les couleurs de donnees ressortent mieux sur un fond neutre et profond.
+   Deux couleurs vives seulement, cyan et orange, reservees aux deux joueurs
+   compares. Tout le reste est gris pour ne pas voler l'attention. */
+
+/* ══════════════════════════════════════════════════════════════ les thèmes
+   La page est claire par défaut : c'est un outil qu'on lit longtemps, souvent en
+   plein jour, et le fond sombre d'origine écrasait tout dans la même teinte. Le
+   thème sombre reste disponible d'un clic, pour les cartes de tirs et les courbes
+   qui ressortent mieux sur fond profond.
+
+   Une seule règle à tenir en modifiant : toute couleur se définit ici, jamais
+   dans une règle plus bas ni dans le JS. Les graphiques relisent ces variables
+   à chaque redessin, c'est ce qui permet de changer de thème sans recharger. */
+:root{
+  color-scheme:light;
+  --fond:#f1f4f9; --fond2:#e8edf4;
+  --surface:#ffffff; --surface2:#f7fafd; --surface3:#edf2f8; --survol:#eaf1f9;
+  --bord:#e2e8f0; --bord2:#cbd5e2; --bord3:#a8b8ca;
+  --texte:#0d1a28; --gris:#425972; --gris2:#5b7189; --gris3:#7e91a6;
+  --a:#0d7ec0; --a2:#0a6aa2; --sur-a:#ffffff;
+  --b:#cd610e; --b2:#b1530b;
+  --pos:#177a4b; --neg:#bf392a; --or:#8f6b0d;
+
+  --h0:#edf2f7; --h1:#b6d5e7; --h2:#79c2b4; --h3:#ddc76c; --h4:#df8a4b; --h5:#d3473a;
+
+  --voile1:#0d1a2808; --voile2:#0d1a2810; --voile3:#0d1a281a;
+  --fond-entete:#ffffffee; --ombre-teinte:#1b2e4426;
+
+  /* Le terrain est nettement plus sourd que la carte qui le porte : sur du blanc,
+     un fond a peine teinte rendait les traits et les tirs invisibles. */
+  --terrain-fond:#dde8f1; --terrain-trait:#96aec4; --terrain-trait2:#74909f;
+  --case-vide:#d9e3ee; --case-vide-bord:#b2c3d5;
+  --sur-accent:#ffffff; --svg-fort:#16293c; --svg-faible:#516a83;
+  --svg-faible2:#445c74; --svg-eteint:#7c92a8; --svg-eteint2:#6c8399;
+  --tir:#3f6b91; --barre-min:#a9c2d6; --surbrillance:#7a3603;
+
+  --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --cond:"IBM Plex Sans Condensed","IBM Plex Sans",-apple-system,"Segoe UI",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
+
+  --e1:8px; --e2:12px; --e3:16px; --e4:22px; --e5:32px;
+  --haut-entete:62px;
+
+  --r:12px; --r2:16px;
+  --ombre:0 14px 34px -20px var(--ombre-teinte);
+  --t:.22s cubic-bezier(.22,.61,.36,1);
+}
+
+:root[data-theme=sombre]{
+  color-scheme:dark;
+  --fond:#0b1119; --fond2:#0f1620;
+  --surface:#151f2b; --surface2:#111a24; --surface3:#1b2836; --survol:#1e2c3b;
+  --bord:#233242; --bord2:#2f4356; --bord3:#3d5468;
+  --texte:#e6edf4; --gris:#a8b9c9; --gris2:#8fa2b5; --gris3:#74899c;
+  --a:#43c3fa; --a2:#1aabf0; --sur-a:#04121a;
+  --b:#ff9250; --b2:#fa7d2e;
+  --pos:#54ce8f; --neg:#f27466; --or:#f2c463;
+
+  --h0:#16273a; --h1:#1f5878; --h2:#33998f; --h3:#cbb54c; --h4:#e27d3c; --h5:#e4483f;
+
+  --voile1:#ffffff0a; --voile2:#ffffff12; --voile3:#ffffff1c;
+  --fond-entete:#0b1119f2; --ombre-teinte:#000000cc;
+
+  --terrain-fond:#0d1621; --terrain-trait:#31485e; --terrain-trait2:#43607a;
+  --case-vide:#1a2735; --case-vide-bord:#2c3f52;
+  --sur-accent:#eaf4fb; --svg-fort:#cbdbe8; --svg-faible:#8ba0b4;
+  --svg-faible2:#94a9bd; --svg-eteint:#48607a; --svg-eteint2:#55708c;
+  --tir:#84aecb; --barre-min:#31506a; --surbrillance:#ffd9b8;
+}
+
+
+*{box-sizing:border-box}
+/* L'en-tete est colle en haut : sans cette marge, il recouvrirait l'element
+   qui vient de recevoir le focus au clavier ou la cible d'une ancre. */
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--haut-entete) + 14px)}
+body{margin:0;background:var(--fond);color:var(--texte);
+     font:400 15px/1.55 var(--sans);-webkit-font-smoothing:antialiased;
+     overflow-x:hidden}
+::selection{background:var(--a);color:var(--sur-a)}
+h1,h2,h3,h4,p,ul,ol,figure{margin:0}
+button,input,select{font-family:inherit}
+a{color:var(--a);text-decoration:none}
+/* Un anneau de focus unique et visible partout, y compris sur les elements
+   rendus interactifs par un role plutot que par leur balise. */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,
+summary:focus-visible,[tabindex]:focus-visible,[role=button]:focus-visible{
+  outline:2px solid var(--a);outline-offset:2px;border-radius:7px}
+[role=button],summary,label.f,.segments label{cursor:pointer}
+
+/* barre de defilement discrete, sinon elle coupe les cartes en deux */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--fond2)}
+::-webkit-scrollbar-thumb{background:var(--bord2);border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:var(--bord3)}
+
+/* ══════════════════════════════════════════════════════════════ en-tete */
+header{position:sticky;top:0;z-index:60;background:var(--fond-entete);
+       backdrop-filter:blur(14px);border-bottom:1px solid var(--bord)}
+.entete{max-width:1500px;margin:0 auto;padding:11px 22px;display:flex;
+        align-items:center;gap:20px}
+.marque{display:flex;align-items:baseline;gap:9px;flex-shrink:0}
+.marque h1{font:700 16px/1 var(--cond);letter-spacing:.09em;text-transform:uppercase;
+           white-space:nowrap}
+.marque h1 span{color:var(--a)}
+.marque em{font-style:normal;color:var(--gris3);font:500 10.5px/1 var(--mono)}
+
+/* la recherche est dans l'en-tete : on change de joueur sans revenir en haut */
+.cherche{position:relative;flex:1;max-width:430px}
+.cherche input{width:100%;padding:9px 13px 9px 34px;border-radius:9px;
+  border:1px solid var(--bord2);background:var(--surface2);color:var(--texte);
+  font:400 14px var(--sans);transition:border-color var(--t),box-shadow var(--t)}
+.cherche input::placeholder{color:var(--gris3)}
+.cherche input:focus{outline:none;border-color:var(--a);
+                     box-shadow:0 0 0 3px color-mix(in srgb,var(--a) 22%,transparent)}
+.cherche svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);
+             width:15px;height:15px;fill:none;stroke:var(--gris2);stroke-width:2}
+
+.suggestions{position:absolute;z-index:80;left:0;right:0;top:calc(100% + 7px);padding:5px;
+  list-style:none;background:var(--surface);border:1px solid var(--bord2);border-radius:11px;
+  max-height:390px;overflow:auto;box-shadow:0 22px 50px var(--ombre-teinte);margin:0}
+.suggestions li{padding:7px 9px;border-radius:8px;cursor:pointer;display:flex;
+                align-items:center;gap:10px;transition:background .12s}
+.suggestions li:hover,.suggestions li[aria-selected=true]{background:var(--survol)}
+.suggestions img{width:26px;height:26px;border-radius:50%;object-fit:cover;
+                 background:var(--surface3);flex-shrink:0}
+.sug-txt{min-width:0;flex:1}
+.sug-txt b{display:block;font:500 13.5px var(--sans);white-space:nowrap;
+           overflow:hidden;text-overflow:ellipsis}
+.sug-txt em{font-style:normal;color:var(--gris2);font-size:11.5px}
+.sug-val{font:500 12px var(--mono);color:var(--gris);white-space:nowrap}
+
+.onglets{display:flex;gap:2px;margin-left:auto;background:var(--surface2);
+         border:1px solid var(--bord);border-radius:10px;padding:3px}
+.onglets button{border:0;background:none;color:var(--gris);cursor:pointer;
+  padding:7px 15px;border-radius:7px;font:600 12px var(--cond);letter-spacing:.08em;
+  text-transform:uppercase;transition:color var(--t),background var(--t)}
+.onglets button:hover{color:var(--texte)}
+.onglets button[aria-selected=true]{background:var(--a);color:var(--sur-a)}
+
+main{max-width:1500px;margin:0 auto;padding:22px 22px 90px}
+.vue[hidden]{display:none}
+.vue{animation:apparait .32s ease both}
+@keyframes apparait{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+
+/* ══════════════════════════════════════════════════════ blocs et titres */
+/* Un degrade tres court en haut de chaque carte simule une source de lumiere :
+   la profondeur se lit sans recourir a un flou, qui couterait cher a repeter. */
+.bloc{background:linear-gradient(180deg,var(--voile1),transparent 96px),var(--surface);
+      border:1px solid var(--bord);border-radius:var(--r2);
+      padding:var(--e4);margin-top:var(--e3);box-shadow:var(--ombre);position:relative}
+.bloc > header{position:static;background:none;border:0;backdrop-filter:none;
+               display:flex;justify-content:space-between;align-items:flex-start;
+               gap:16px;flex-wrap:wrap;margin-bottom:4px;padding:0}
+.bloc h3{font:600 12px var(--cond);text-transform:uppercase;letter-spacing:.14em;
+         color:var(--gris)}
+.bloc h3 b{color:var(--a);font-weight:600}
+/* la phrase qui explique sur quoi le graphique se base, en francais courant */
+.dit{color:var(--gris2);font-size:12.5px;line-height:1.55;margin-top:5px;max-width:78ch}
+.dit b{color:var(--gris);font-weight:500}
+
+.grille2{display:grid;grid-template-columns:1fr 1fr;gap:var(--e3);margin-top:var(--e3)}
+.grille2 > .bloc{margin-top:0}
+.grille3{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--e3);margin-top:var(--e3)}
+.grille3 > .bloc{margin-top:0}
+
+/* revele au defilement : les blocs montent doucement quand ils entrent a l'ecran */
+.monte{opacity:0;transform:translateY(14px)}
+.monte.vu{opacity:1;transform:none;
+          transition:opacity .5s ease,transform .5s cubic-bezier(.22,.61,.36,1)}
+
+/* ═══════════════════════════════════════════════════════ fiche : le haut */
+.hero{position:relative;border-radius:var(--r2);overflow:hidden;
+      border:1px solid var(--bord);background:var(--surface);box-shadow:var(--ombre)}
+.hero-fond{position:absolute;inset:0;opacity:.34;
+  background:radial-gradient(720px 320px at 12% -10%,var(--teinte,var(--a))45%,transparent 70%),
+             linear-gradient(160deg,var(--surface3) 0%,var(--surface2) 62%)}
+.hero-fond::after{content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(115deg,var(--voile1) 0 1px,transparent 1px 7px)}
+.hero-in{position:relative;display:grid;grid-template-columns:auto 1fr auto;
+         gap:26px;padding:24px 26px;align-items:center}
+
+.portrait{position:relative;width:132px;height:132px;flex-shrink:0}
+.portrait img{width:132px;height:132px;border-radius:20px;object-fit:cover;
+  background:var(--surface3);border:1px solid var(--bord2);display:block;
+  animation:zoomdoux .6s cubic-bezier(.22,.61,.36,1) both}
+@keyframes zoomdoux{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:none}}
+.portrait .initiales{width:132px;height:132px;border-radius:20px;display:grid;
+  place-content:center;background:linear-gradient(150deg,var(--surface3),var(--surface2));
+  border:1px solid var(--bord2);font:700 40px var(--cond);color:var(--gris2)}
+.portrait .ecusson{position:absolute;right:-10px;bottom:-10px;width:46px;height:46px;
+  border-radius:13px;background:var(--surface);border:1px solid var(--bord2);
+  display:grid;place-content:center;padding:6px;box-shadow:0 8px 18px var(--ombre-teinte)}
+.portrait .ecusson img{width:100%;height:100%;object-fit:contain;border:0;
+                       border-radius:0;background:none;animation:none}
+.portrait .numero{position:absolute;left:-9px;top:-9px;min-width:30px;height:30px;
+  padding:0 7px;border-radius:9px;background:var(--a);color:var(--sur-a);
+  font:700 15px/30px var(--mono);text-align:center;box-shadow:0 6px 14px color-mix(in srgb,var(--a) 42%,transparent)}
+
+.hero-id{min-width:0}
+.hero-id .ligne1{display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+                 color:var(--gris);font-size:13px}
+.hero-id .ligne1 img{width:19px;height:13px;object-fit:cover;border-radius:2px}
+.hero-id h2{font:700 37px/1.06 var(--sans);letter-spacing:-.7px;margin:5px 0 8px;
+            text-wrap:balance}
+.badges{display:flex;flex-wrap:wrap;gap:7px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:7px;
+  background:var(--voile1);border:1px solid var(--bord2);font:500 12px var(--sans);
+  color:var(--gris)}
+.badge b{color:var(--texte);font-weight:600}
+.badge.fort{background:color-mix(in srgb,var(--a) 18%,transparent);
+            border-color:color-mix(in srgb,var(--a) 40%,transparent);color:var(--texte)}
+.badge.alerte{background:color-mix(in srgb,var(--or) 14%,transparent);border-color:color-mix(in srgb,var(--or) 38%,transparent);color:var(--or)}
+
+.hero-prix{text-align:right;flex-shrink:0}
+.hero-prix .gros{font:600 40px/1 var(--mono);font-variant-numeric:tabular-nums;
+                 letter-spacing:-1px}
+.hero-prix .lab{font-size:11.5px;color:var(--gris2);margin-top:5px}
+.hero-prix .sous{margin-top:9px;font:500 12px var(--mono);color:var(--gris)}
+.hero-prix .sous i{font-style:normal}
+
+/* bandeau de chiffres cles sous le hero */
+/* toujours huit chiffres cles : on fixe le nombre de colonnes plutot que de le
+   laisser deviner, sinon la derniere valeur se retrouve seule sur sa ligne */
+.kpis{display:grid;grid-template-columns:repeat(8,1fr);
+      border-top:1px solid var(--bord);position:relative}
+@media (max-width:1150px){.kpis{grid-template-columns:repeat(4,1fr)}
+  .kpi:nth-child(4n){border-right:0}
+  .kpi:nth-child(-n+4){border-bottom:1px solid var(--bord)}}
+@media (max-width:620px){.kpis{grid-template-columns:repeat(2,1fr)}
+  .kpi{border-right:1px solid var(--bord)}
+  .kpi:nth-child(2n){border-right:0}
+  .kpi:nth-child(-n+6){border-bottom:1px solid var(--bord)}}
+.kpi{padding:13px 16px;border-right:1px solid var(--bord);min-width:0;overflow:hidden}
+.kpi:last-child{border-right:0}
+.kpi .v{font:600 23px/1 var(--mono);font-variant-numeric:tabular-nums}
+.kpi .v small{font-size:13px;color:var(--gris2);font-weight:400}
+.kpi .l{font:500 10.5px var(--cond);text-transform:uppercase;letter-spacing:.11em;
+        color:var(--gris2);margin-top:5px;overflow-wrap:anywhere}
+.kpi .p{margin-top:7px;height:3px;border-radius:2px;background:var(--voile2);overflow:hidden}
+.kpi .p i{display:block;height:100%;border-radius:2px;background:var(--a);width:0;
+          transition:width .8s cubic-bezier(.22,.61,.36,1)}
+
+/* la phrase de synthese generee a partir des percentiles */
+.synthese{margin-top:15px;padding:16px 19px;border-radius:var(--r2);
+  background:linear-gradient(135deg,var(--surface3),var(--surface2));border:1px solid var(--bord);
+  font-size:14.5px;line-height:1.65;color:var(--gris)}
+.synthese b{color:var(--texte);font-weight:600}
+.synthese .fort{color:var(--pos)}
+.synthese .faible{color:var(--neg)}
+
+/* ══════════════════════════════════════════════════════ cartes terrain */
+/* minmax(0,1fr) et non 1fr : sans cela une colonne refuse de descendre sous la
+   largeur de son contenu, et la rangee deborde au lieu de se resserrer. */
+.terrains{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) minmax(0,1.15fr);
+          gap:var(--e3);margin-top:var(--e3)}
+.terrains > *{min-width:0}
+.terrain svg{display:block;width:100%;height:auto;border-radius:10px;
+             background:var(--terrain-fond);margin-top:10px}
+.legende-zones{display:flex;align-items:center;gap:9px;margin-top:10px;
+               font-size:11.5px;color:var(--gris2)}
+.echelle{flex:1;height:7px;border-radius:4px;
+  background:linear-gradient(90deg,var(--h0),var(--h1),var(--h2),var(--h3),var(--h4),var(--h5))}
+
+.postes-liste{margin-top:11px;display:flex;flex-direction:column;gap:5px}
+.poste-l{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;
+         font-size:12.5px;padding:3px 0}
+.poste-l .nom{color:var(--gris);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.poste-l .nom i{font-style:normal;display:inline-block;width:8px;height:8px;
+                border-radius:2px;margin-right:7px;vertical-align:middle}
+.poste-l .barre{position:relative;width:78px;height:5px;border-radius:3px;background:var(--voile2)}
+.poste-l .barre i{position:absolute;inset:0 auto 0 0;border-radius:3px;width:0;
+                  transition:width .7s cubic-bezier(.22,.61,.36,1)}
+.poste-l .min{font:500 11.5px var(--mono);color:var(--gris2);white-space:nowrap;
+              font-variant-numeric:tabular-nums}
+
+.filtres-tirs{display:flex;gap:7px;flex-wrap:wrap;margin-top:2px}
+.filtres-tirs select{padding:5px 9px;border-radius:7px;border:1px solid var(--bord2);
+  background:var(--surface2);color:var(--gris);font:400 12px var(--sans)}
+.filtres-tirs select:focus{outline:2px solid var(--a);outline-offset:1px}
+.stats-tirs{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:11px}
+.stats-tirs div{text-align:center;padding:8px 4px;border-radius:9px;background:var(--voile1)}
+.stats-tirs b{display:block;font:600 18px var(--mono);font-variant-numeric:tabular-nums}
+.stats-tirs span{font-size:10.5px;color:var(--gris2)}
+
+/* ═══════════════════════════════════════════════════════════ le radar */
+.radar-zone{display:grid;grid-template-columns:1fr 320px;gap:var(--e4);align-items:start;
+            margin-top:var(--e2)}
+/* En axes paralleles la toile prend toute la largeur, et la liste des familles
+   passe en dessous : 59 axes ont besoin de place. */
+.radar-zone.detail{grid-template-columns:1fr}
+#radar,#radar-cmp{display:block;width:100%;height:auto;max-width:640px;margin:0 auto}
+#radar.large,#radar-cmp.large{max-width:none}
+#radar text,#radar-cmp text{font-family:var(--cond)}
+.radar-zone.detail .familles-liste{display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:2px var(--e4)}
+.familles-liste{display:flex;flex-direction:column;gap:7px}
+.fam-l{display:grid;grid-template-columns:1fr 92px 34px;gap:10px;align-items:center;
+       font-size:12.5px;padding:5px 8px;border-radius:8px;cursor:default;
+       transition:background var(--t)}
+.fam-l:hover{background:var(--voile1)}
+.fam-l .nom{color:var(--gris);display:flex;align-items:center;gap:8px;min-width:0}
+.fam-l .nom i{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.fam-l .barre{position:relative;height:6px;border-radius:3px;background:var(--voile2)}
+.fam-l .barre i{position:absolute;inset:0 auto 0 0;border-radius:3px;width:0;
+                transition:width .8s cubic-bezier(.22,.61,.36,1)}
+.fam-l .val{font:600 12.5px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+
+.segments{display:inline-flex;border:1px solid var(--bord2);border-radius:8px;
+          overflow:hidden;background:var(--surface2)}
+.segments label{padding:6px 13px;font:500 12.5px var(--sans);cursor:pointer;
+                color:var(--gris);transition:background var(--t),color var(--t)}
+.segments label:has(input:checked){background:var(--a);color:var(--sur-a);font-weight:600}
+.segments label:has(input:focus-visible){outline:2px solid var(--a);outline-offset:-2px}
+.segments input{position:absolute;opacity:0;pointer-events:none}
+
+/* Quand la carte des touches manque, faute de donnees, la toile vient occuper la
+   colonne laissee libre a droite de la carte des tirs. Elle n'y dispose plus que
+   d'un tiers de la largeur : le radar passe donc au-dessus de la liste des
+   familles au lieu d'etre a cote. */
+/* les deux autres cartes de la rangee ont leur marge haute annulee en ligne :
+   sans cela la toile demarre seize pixels plus bas et la rangee boite */
+.terrains .bloc.au-terrain{margin-top:0}
+.bloc.au-terrain .radar-zone{grid-template-columns:1fr;gap:var(--e2)}
+.bloc.au-terrain #radar{max-width:none}
+.terrains .bloc.au-terrain.large{grid-column:1 / -1}
+
+/* ═════════════════════════════════════════════════ tableaux de statistiques */
+.familles-onglets{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 4px}
+.familles-onglets button{padding:6px 12px;border-radius:8px;border:1px solid var(--bord2);
+  background:var(--surface2);color:var(--gris);cursor:pointer;font:500 12.5px var(--sans);
+  transition:all var(--t)}
+.familles-onglets button:hover{color:var(--texte);border-color:var(--bord3)}
+.familles-onglets button[aria-pressed=true]{background:var(--a);color:var(--sur-a);
+  border-color:var(--a);font-weight:600}
+
+.stats-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+              gap:3px 24px;margin-top:12px}
+.stat-l{display:grid;grid-template-columns:1fr 62px 118px;gap:12px;align-items:center;
+        padding:7px 9px;border-radius:8px;transition:background var(--t)}
+.stat-l:hover{background:var(--voile1)}
+.stat-l .lib{font-size:13px;color:var(--gris);min-width:0}
+.stat-l .lib small{display:block;color:var(--gris3);font-size:10.5px}
+.stat-l .brut{font:500 13px var(--mono);text-align:right;font-variant-numeric:tabular-nums;
+              color:var(--texte)}
+.jauge-p{position:relative;height:18px;border-radius:5px;background:var(--voile2);overflow:hidden}
+.jauge-p i{position:absolute;inset:0 auto 0 0;width:0;border-radius:5px;
+           transition:width .75s cubic-bezier(.22,.61,.36,1)}
+.jauge-p u{position:absolute;inset:0;text-decoration:none;display:flex;align-items:center;
+  justify-content:center;font:600 10.5px var(--mono);color:var(--sur-a);text-shadow:none}
+.jauge-p.vide u{color:var(--gris3)}
+
+/* ═════════════════════════════════════════════════════════════ graphiques */
+.graph{display:block;width:100%;height:auto;margin-top:10px}
+.graph text{font-family:var(--cond);fill:var(--gris2);font-size:10px}
+.graph .axe{stroke:var(--bord);stroke-width:1}
+.graph .grille{stroke:var(--voile1);stroke-width:1}
+.trace{stroke-dasharray:var(--long);stroke-dashoffset:var(--long);
+       animation:trace 1.1s cubic-bezier(.3,.7,.4,1) forwards}
+@keyframes trace{to{stroke-dashoffset:0}}
+
+.infobulle{position:fixed;z-index:200;pointer-events:none;padding:8px 11px;
+  border-radius:9px;background:var(--surface);border:1px solid var(--bord2);
+  box-shadow:0 14px 30px var(--ombre-teinte);font-size:12px;line-height:1.5;max-width:250px;
+  opacity:0;transition:opacity .12s}
+.infobulle.on{opacity:1}
+.infobulle b{color:var(--texte)}
+.infobulle span{color:var(--gris2)}
+
+/* ═══════════════════════════════════════════════════════════ comparaison */
+.duo{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:stretch;
+     margin-top:15px}
+.carte-j{background:var(--surface);border:1px solid var(--bord);border-radius:var(--r2);
+  padding:17px 19px;border-top:3px solid var(--a);min-width:0;cursor:pointer;
+  transition:transform var(--t),border-color var(--t);box-shadow:var(--ombre)}
+.carte-j:hover{transform:translateY(-2px)}
+.carte-j.jumeau{border-top-color:var(--b)}
+.carte-j .tete{display:flex;gap:13px;align-items:center}
+.carte-j .tete img.p{width:56px;height:56px;border-radius:13px;object-fit:cover;
+                     background:var(--surface3);flex-shrink:0}
+.carte-j .role{font:600 10px var(--cond);text-transform:uppercase;letter-spacing:.15em;
+               color:var(--gris2)}
+.carte-j .nom{font:600 20px/1.18 var(--sans);margin:3px 0 2px;text-wrap:balance}
+.carte-j .club{color:var(--gris);font-size:12.5px;display:flex;align-items:center;gap:6px}
+.carte-j .club img{width:15px;height:15px;object-fit:contain}
+.carte-j .prix{font:600 27px/1 var(--mono);margin:14px 0 3px;font-variant-numeric:tabular-nums}
+.carte-j.jumeau .prix{color:var(--b)}
+.carte-j .prix-lab{font-size:11px;color:var(--gris2)}
+.infos{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin-top:14px;
+       padding-top:13px;border-top:1px solid var(--bord);font-size:12.5px}
+.infos dt{color:var(--gris2)}
+.infos dd{margin:0;text-align:right;font:500 12px var(--mono);font-variant-numeric:tabular-nums}
+
+/* Le selecteur d'intention : quatre situations de recrutement, une seule active.
+   Il remplace quatre curseurs, c'est la seule facon de garder la page lisible. */
+.intentions{display:flex;flex-wrap:wrap;gap:7px;margin-top:var(--e2)}
+.intentions label{padding:8px 14px;border-radius:9px;border:1px solid var(--bord2);
+  background:var(--surface2);color:var(--gris);cursor:pointer;font:500 13px var(--sans);
+  transition:all var(--t)}
+.intentions label:hover{color:var(--texte);border-color:var(--bord3)}
+.intentions label.actif{background:var(--a);border-color:var(--a);color:var(--sur-a);
+                        font-weight:600}
+.intentions label:has(input:focus-visible){outline:2px solid var(--a);outline-offset:2px}
+.intentions input{position:absolute;opacity:0;pointer-events:none}
+
+/* Les deux champs de choix du mode duo, cote a cote */
+.duo-choix{display:grid;grid-template-columns:1fr 1fr;gap:var(--e3);margin-top:var(--e2)}
+.duo-choix .f{margin-top:0;margin-bottom:6px}
+@media (max-width:700px){.duo-choix{grid-template-columns:1fr}}
+
+/* Le rappel sous le titre : qui l'on cherche a remplacer, en une ligne */
+.rappel{font:500 12.5px var(--mono);color:var(--gris2);margin-top:4px}
+
+/* Trajectoire et forme, sous la fiche d'identite de chaque joueur */
+.suivi{margin-top:12px;padding-top:11px;border-top:1px solid var(--bord);
+       display:flex;flex-direction:column;gap:6px}
+.suivi-l{font-size:12px;color:var(--gris2);line-height:1.5;display:flex;
+         align-items:baseline;gap:7px}
+.suivi-l b{color:var(--texte);font-weight:600}
+.pastille{width:7px;height:7px;border-radius:50%;flex-shrink:0;
+          background:var(--gris3);transform:translateY(-1px)}
+.pastille.hausse{background:var(--pos)}
+.pastille.baisse{background:var(--neg)}
+.pastille.stable,.pastille.neutre{background:var(--gris3)}
+
+.verdict{display:flex;flex-direction:column;align-items:center;justify-content:center;
+         gap:11px;padding:0 6px;min-width:196px}
+.jauge{width:158px;height:158px;border-radius:50%;display:grid;place-content:center;
+  text-align:center;position:relative;
+  background:conic-gradient(var(--a) var(--p),var(--surface3) 0);transition:background .7s ease}
+.jauge::after{content:"";position:absolute;inset:11px;border-radius:50%;background:var(--fond)}
+.jauge > *{position:relative;z-index:1}
+.jauge-val{font:600 37px/1 var(--mono);font-variant-numeric:tabular-nums}
+.jauge-val i{font-style:normal;font-size:17px;color:var(--gris)}
+.jauge-lab{font:600 9.5px/1.4 var(--cond);text-transform:uppercase;letter-spacing:.13em;
+           color:var(--gris);margin-top:6px}
+.economie{font:600 18px var(--mono);color:var(--pos);font-variant-numeric:tabular-nums;
+          text-align:center}
+.economie span{display:block;font:400 11.5px var(--sans);color:var(--gris2);margin-top:3px}
+.fleche{color:var(--gris3);font-size:12px;letter-spacing:.1em}
+
+/* quatre colonnes egales : les deux curseurs principaux en occupent deux chacun,
+   les deux petits une seule, le championnat reprend toute la largeur */
+.reglages{display:grid;grid-template-columns:repeat(4,1fr);gap:2px 22px;margin-top:12px}
+.reglages .large{grid-column:span 2}
+.reglages .pleine{grid-column:1 / -1}
+@media (max-width:820px){
+  .reglages{grid-template-columns:1fr}
+  .reglages .large,.reglages .pleine{grid-column:1}
+}
+label.f{font-size:12.5px;color:var(--gris);margin:11px 0 5px;display:flex;
+        justify-content:space-between;gap:10px}
+label.f b{color:var(--texte);font:500 12.5px var(--mono);white-space:nowrap}
+select.champ{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--bord2);
+  background:var(--surface2);color:var(--texte);font:400 13.5px var(--sans)}
+input[type=range]{width:100%;accent-color:var(--a);margin:0}
+/* un curseur hors service se voit : sans cela on croit qu'il ne repond plus */
+input[type=range]:disabled{opacity:.4;cursor:not-allowed}
+label.f:has(+ input:disabled){opacity:.45}
+input[type=range]:focus-visible,select:focus{outline:2px solid var(--a);outline-offset:2px}
+
+.pistes{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.piste{display:grid;grid-template-columns:26px 34px 1fr auto auto;gap:11px;
+       align-items:center;padding:7px 9px;border-radius:9px;cursor:pointer;
+       transition:background var(--t)}
+.piste:hover{background:var(--survol)}
+.piste.actif{background:color-mix(in srgb,var(--b) 15%,transparent);
+             box-shadow:inset 2px 0 0 var(--b)}
+.piste img{width:34px;height:34px;border-radius:9px;object-fit:cover;background:var(--surface3)}
+.rang{color:var(--gris3);font:400 11.5px var(--mono);text-align:right}
+.piste-nom{display:flex;flex-direction:column;min-width:0;font-size:13.5px}
+.piste-nom em{font-style:normal;color:var(--gris2);font-size:11.5px;white-space:nowrap;
+              overflow:hidden;text-overflow:ellipsis}
+.piste-prix{font:500 13px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.piste-prix span{display:block;font-size:11px;color:var(--pos)}
+/* le niveau se lit sous le prix, en gris : c'est une information de nature
+   differente, elle ne doit pas etre confondue avec une economie */
+.piste-prix .niv{color:var(--gris2);font-size:10.5px}
+.score{font:600 13px var(--mono);color:var(--a);padding:4px 9px;border-radius:7px;
+  font-variant-numeric:tabular-nums;min-width:52px;text-align:center;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--a) 26%,transparent) var(--s),var(--surface3) var(--s))}
+
+/* ═════════════════════════════════════════════════════════════ explorer */
+.barre-outils{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:4px}
+.champ-groupe{display:flex;flex-direction:column;gap:5px;min-width:132px}
+.champ-groupe span{font:500 10.5px var(--cond);text-transform:uppercase;
+                   letter-spacing:.1em;color:var(--gris2)}
+.tableau{overflow:auto;max-height:70vh;margin-top:12px;border-radius:11px;
+         border:1px solid var(--bord)}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{padding:7px 11px;text-align:left;border-bottom:1px solid var(--bord);
+      white-space:nowrap}
+th{position:sticky;top:0;background:var(--surface3);color:var(--gris);font:600 10px var(--cond);
+   text-transform:uppercase;letter-spacing:.11em;z-index:2;cursor:pointer;
+   user-select:none;transition:color var(--t)}
+th:hover{color:var(--texte)}
+th[aria-sort]:after{content:"";margin-left:5px;color:var(--a)}
+th[aria-sort=descending]:after{content:"↓"}
+th[aria-sort=ascending]:after{content:"↑"}
+td.num,th.num{text-align:right;font-family:var(--mono);
+              font-variant-numeric:tabular-nums;font-size:12px}
+tbody tr{cursor:pointer;transition:background var(--t)}
+tbody tr:hover td{background:var(--survol)}
+td .mini{display:flex;align-items:center;gap:8px}
+td .mini img{width:26px;height:26px;border-radius:7px;object-fit:cover;
+             background:var(--surface3)}
+td .mini b{font-weight:500}
+.mini-barre{position:relative;width:56px;height:6px;border-radius:3px;
+            background:var(--voile2);display:inline-block;vertical-align:middle}
+.mini-barre i{position:absolute;inset:0 auto 0 0;border-radius:3px}
+
+/* ══════════════════════════════════════════════════════════════ divers */
+.reduit{display:inline-flex;align-items:center;justify-content:center;margin-left:6px;
+  width:15px;height:15px;border-radius:4px;background:color-mix(in srgb,var(--or) 20%,transparent);color:var(--or);
+  font:700 10px var(--sans);cursor:help;vertical-align:middle}
+/* Le bandeau d'un joueur venu d'un championnat que les sources ne couvrent pas.
+   Il se lit avant le prix, parce qu'il change la lecture de tout ce qui suit. */
+.manque{margin:11px 0 0;padding:10px 12px;border-radius:var(--r3,8px);
+  background:color-mix(in srgb,var(--or) 12%,transparent);
+  border-left:3px solid var(--or);
+  font-size:11.5px;line-height:1.62;color:var(--gris2)}
+.manque b{color:var(--texte);font-weight:600}
+.reduit.hors{width:auto;padding:0 5px;font-size:9.5px;letter-spacing:.04em}
+.vide{color:var(--gris2);font-size:14px;text-align:center;padding:44px 20px;line-height:1.7}
+.vide b{color:var(--texte)}
+details{margin-top:13px;background:var(--surface);border:1px solid var(--bord);
+        border-radius:var(--r2);overflow:hidden}
+summary{padding:14px 19px;cursor:pointer;font:600 11px var(--cond);text-transform:uppercase;
+  letter-spacing:.13em;color:var(--gris);list-style:none;display:flex;
+  justify-content:space-between;align-items:center;transition:color var(--t)}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font:400 17px var(--mono);color:var(--gris3)}
+details[open] summary{border-bottom:1px solid var(--bord)}
+details[open] summary::after{content:"–"}
+summary:hover{color:var(--texte)}
+.corps{padding:14px 17px 17px}
+
+footer{max-width:1500px;margin:0 auto;color:var(--gris3);font-size:11.5px;
+       padding:10px 22px 40px;line-height:1.7}
+footer b{color:var(--gris2);font-weight:600}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+  .monte{opacity:1;transform:none}
+}
+/* La rangee des terrains tient ses trois colonnes tant qu'il reste de quoi lire :
+   les trois graphiques doivent rester alignes, c'est tout l'interet de les mettre
+   cote a cote. En dessous, on empile plutot que de renvoyer le troisieme seul sur
+   une deuxieme ligne. */
+@media (max-width:1180px){
+  .radar-zone{grid-template-columns:1fr}
+}
+@media (max-width:1000px){
+  .terrains{grid-template-columns:1fr}
+  .terrains > :nth-child(n){grid-column:auto}
+}
+@media (max-width:900px){
+  .entete{flex-wrap:wrap;gap:11px;padding:10px 15px}
+  .cherche{order:3;max-width:none;flex-basis:100%}
+  .onglets{margin-left:0}
+  main{padding:15px 14px 70px}
+  .hero-in{grid-template-columns:1fr;gap:17px;padding:19px}
+  .hero-prix{text-align:left}
+  .hero-id h2{font-size:28px}
+  .duo{grid-template-columns:1fr}
+  /* .terrains a son propre seuil, plus bas : ses trois cartes doivent rester
+     alignees aussi longtemps que possible. */
+  .grille2,.grille3{grid-template-columns:1fr}
+  .stats-grille{grid-template-columns:1fr}
+}
+
+/* ═══════════════════════════════════════════ bouton de theme et transitions */
+.bascule{margin-left:10px;width:38px;height:38px;flex-shrink:0;border-radius:10px;
+  border:1px solid var(--bord2);background:var(--surface2);color:var(--gris);
+  font-size:16px;line-height:1;cursor:pointer;display:grid;place-content:center;
+  transition:background var(--t),color var(--t),border-color var(--t),transform var(--t)}
+.bascule:hover{color:var(--texte);border-color:var(--bord3);background:var(--surface3);
+               transform:rotate(-18deg)}
+
+/* Le changement de theme repeint toute la page d'un coup : une breve fondue
+   evite le clignotement brutal du blanc au noir. */
+body{transition:background-color .3s ease,color .3s ease}
+body.vire main,body.vire header{animation:fondu .42s ease}
+@keyframes fondu{from{opacity:.35}to{opacity:1}}
+
+/* ═══════════════════════════════════════════════════════════ les animations */
+/* Les cartes ne montent plus toutes ensemble : un decalage tres court, pose par
+   le JS, les fait apparaitre l'une apres l'autre et donne le sens de lecture. */
+.monte{transition-delay:var(--retard,0ms)}
+
+/* Le bloc se souleve legerement sous le curseur : de quoi signaler qu'il est
+   vivant sans deplacer quoi que ce soit autour. */
+.bloc,.hero{transition:transform var(--t),box-shadow var(--t),border-color var(--t)}
+.terrains .bloc:hover,.grille2 .bloc:hover,.grille3 .bloc:hover{
+  transform:translateY(-3px);box-shadow:0 22px 46px -24px var(--ombre-teinte);
+  border-color:var(--bord2)}
+
+/* Les chiffres cles se comptent au chargement plutot que d'apparaitre finis :
+   la valeur monte, on suit la progression de la barre en dessous. */
+.kpi .v{font-variant-numeric:tabular-nums}
+
+/* La toile se deploie depuis son centre. */
+@keyframes deploie{from{transform:scale(.72);opacity:0}to{transform:none;opacity:1}}
+#radar .toile-trace,#radar-cmp .toile-trace{transform-origin:center;
+  animation:deploie .62s cubic-bezier(.22,.61,.36,1) both}
+
+/* Les barres de famille se remplissent en cascade. */
+.fam-l .barre i,.stat-l .jauge-p i{transition-delay:var(--retard,0ms)}
+
+@media (prefers-reduced-motion:reduce){
+  .bascule:hover{transform:none}
+  .terrains .bloc:hover,.grille2 .bloc:hover,.grille3 .bloc:hover{transform:none}
+  body.vire main,body.vire header{animation:none}
+  #radar .toile-trace,#radar-cmp .toile-trace{animation:none}
+}
