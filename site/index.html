@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comparateur Player</title>
+<meta name="description" content="Fiches de scouting des joueurs des cinq grands championnats européens, saison 2024-2025 : cartes de tirs, postes occupés, percentiles et jumeau statistique le moins cher.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="entete">
+    <div class="marque">
+      <h1>Comparateur <span>Player</span></h1>
+      <em id="compteur"></em>
+    </div>
+
+    <div class="cherche">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path>
+      </svg>
+      <input id="recherche" placeholder="Chercher un joueur, un club" autocomplete="off"
+             role="combobox" aria-expanded="false" aria-controls="suggestions"
+             aria-label="Chercher un joueur">
+      <ul id="suggestions" class="suggestions" role="listbox" hidden></ul>
+    </div>
+
+    <nav class="onglets" role="tablist" aria-label="Sections">
+      <button role="tab" data-vue="comparer" aria-selected="true">Comparer</button>
+      <button role="tab" data-vue="explorer" aria-selected="false">Explorer</button>
+    </nav>
+
+    <button id="bascule-theme" class="bascule" type="button" aria-pressed="false"
+            title="Passer au thème sombre" aria-label="Passer au thème sombre">☾</button>
+  </div>
+</header>
+
+<main>
+  <section id="vue-comparer" class="vue" role="tabpanel" aria-label="Comparaison"></section>
+  <section id="vue-fiche" class="vue" role="tabpanel" aria-label="Fiche du joueur" hidden></section>
+  <section id="vue-explorer" class="vue" role="tabpanel" aria-label="Exploration" hidden></section>
+</main>
+
+<footer>
+  <b>Sources.</b> Statistiques de match FBref pour la saison 2024-2025 des cinq grands
+  championnats. Poste principal, nationalité, taille, pied, numéro, portrait et valeur
+  marchande depuis Transfermarkt, la valeur retenue étant celle en vigueur au 30 juin 2025.
+  Tirs localisés, minutes jouées poste par poste et détail match par match depuis Understat.
+  <b>Méthode.</b> Les variables sont ramenées à 90 minutes puis converties en percentile à
+  l'intérieur du poste : 50 désigne le joueur médian de son poste sur les cinq championnats.
+  La ressemblance est la distance entre ces percentiles, pondérée par famille selon le poste.
+  <b>Limite.</b> Une forte ressemblance signifie deux styles de jeu voisins, pas deux joueurs
+  de même niveau. Le contexte d'équipe n'est pas neutralisé, et les statistiques ne couvrent
+  que le championnat, ni les coupes ni l'Europe.
+</footer>
+
+<div id="infobulle" class="infobulle" role="status" aria-live="polite"></div>
+
+<script src="data.js"></script>
+<script src="fiches.js"></script>
+<script src="app.js"></script>
+<script src="fiche.js"></script>
+<script src="comparer.js"></script>
+<script src="explorer.js"></script>
+</body>
+</html>
